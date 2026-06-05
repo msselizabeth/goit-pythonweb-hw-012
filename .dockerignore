@@ -1,0 +1,12 @@
+.env
+.gitignore
+.venv/
+
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore IDE configurations
+.vscode/
