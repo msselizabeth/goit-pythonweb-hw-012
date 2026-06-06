@@ -1,5 +1,5 @@
-from repository import ContactRepository
-from schemas import ContactModel
+from app.repository import ContactRepository
+from app.schemas import ContactModel
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -9,7 +9,10 @@ class ContactService:
         self.repository = repository
 
     async def get_contacts(self, skip: int, limit: int):
-        return await self.repository.get_contacts(skip, limit)
+        contacts = await self.repository.get_contacts(skip, limit)
+        if len(contacts) == 0:
+            return []
+        return contacts
 
     async def get_contact(self, id: int):
         contact = await self.repository.get_contact_by_id(id)
