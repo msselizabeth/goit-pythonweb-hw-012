@@ -1,7 +1,8 @@
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, extract, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Contact
 from app.schemas import ContactModel
+from datetime import date, timedelta
 
 
 class ContactRepository:
@@ -64,3 +65,30 @@ class ContactRepository:
             return None
         await self.db.delete(contact)
         return contact
+
+    async def get_birthdays(self):
+        today = date.today()
+        end_date = today + timedelta(days=7)
+        if today.month == end_date.month:
+            stmt = select(Contact).where(
+                and_(
+                    extract("day", Contact.birthday) >= today.day,
+                    extract("day", Contact.birthday) <= end_date.day,
+                    extract("month", Contact.birthday) == end_date.month,
+                )
+            )
+        else:
+            stmt = select(Contact).where(
+                or_(
+                    and_(
+                        extract("day", Contact.birthday) >= today.day,
+                        extract("month", Contact.birthday) == today.month,
+                    ),
+                    and_(
+                        extract("day", Contact.birthday) <= end_date.day,
+                        extract("month", Contact.birthday) == end_date.month,
+                    ),
+                )
+            )
+        result = await self.db.execute(stmt)
+        return result.scalars().all()

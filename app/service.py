@@ -53,3 +53,6 @@ class ContactService:
         if contact is None:
             raise HTTPException(status_code=404, detail="Contact not found")
         return contact
+    
+    async def get_b_days(self):
+        return await self.repository.get_birthdays()

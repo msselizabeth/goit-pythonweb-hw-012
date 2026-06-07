@@ -24,6 +24,11 @@ async def get_contacts(
 ):
     return await service.get_contacts(first_name, last_name, email, skip, limit)
 
+@router.get("/birthdays", response_model=list[ContactResponse])
+async def get_birthdays(
+    service: ContactService = Depends(get_service),
+):
+    return await service.get_b_days()
 
 @router.get("/{contact_id}", response_model=ContactResponse)
 async def get_contact(
@@ -56,3 +61,5 @@ async def delete_contact(
     service: ContactService = Depends(get_service),
 ):
     await service.delete_contact(contact_id)
+
+
