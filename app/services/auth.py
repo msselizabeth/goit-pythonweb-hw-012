@@ -10,7 +10,7 @@ from app.db.db_connection import get_db
 from app.db.models import User
 from app.repository.users import UserRepository
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 class Hash:

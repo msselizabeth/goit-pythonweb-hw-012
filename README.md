@@ -58,17 +58,64 @@ http://localhost:8001/docs
 ## API Endpoints
 
 ### Auth
+
 POST   /api/auth/signup
 POST   /api/auth/login
 GET    /api/auth/verify/{token}
 
 ### Users
+
 GET    /api/users/me
 PATCH  /api/users/avatar
 
 ### Contacts
-GET    /api/contacts/
-GET    /api/contacts/{id}
+
+``` # GET    /api/contacts/
+
+[
+    {
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "0991234567",
+        "birthday": "1990-06-08",
+        "additional_data": "Friend from work",
+        "id": 1
+    },
+    {
+        "first_name": "Anna",
+        "last_name": "Smith",
+        "email": "anna.smith@example.com",
+        "phone": "0671234568",
+        "birthday": "1995-06-10",
+        "additional_data": null,
+        "id": 2
+    },
+    {
+        "first_name": "Mike",
+        "last_name": "Johnson",
+        "email": "mike.j@example.com",
+        "phone": "0501234569",
+        "birthday": "1988-06-12",
+        "additional_data": "College friend",
+        "id": 3
+    }
+]
+```
+
+``` # GET    /api/contacts/{id}
+
+{
+    "first_name": "Mike",
+    "last_name": "Johnson",
+    "email": "mike.j@example.com",
+    "phone": "0501234569",
+    "birthday": "1988-06-12",
+    "additional_data": "College friend",
+    "id": 3
+}
+```
+
 POST   /api/contacts/
 PUT    /api/contacts/{id}
 PATCH  /api/contacts/{id}

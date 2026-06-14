@@ -32,8 +32,8 @@ async def signup_user(
     
     token = create_access_token(data={"sub": new_user.email})
     
-    base_url = str(request.base_url)
-    await send_verification_email(new_user.email, base_url, token)
+    base_url = str(request.base_url).rstrip("/")
+    await send_verification_email(new_user.email, f"{base_url}/api/", token)
     
     return new_user
 

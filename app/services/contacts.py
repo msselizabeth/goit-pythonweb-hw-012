@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
 from app.repository.contacts import ContactRepository
 from app.schemas.contacts import ContactModel
 from app.db.models import User
@@ -9,17 +10,19 @@ class ContactService:
     def __init__(self, repository: ContactRepository):
         self.repository = repository
 
+
     async def get_contacts(
         self,
+        first_name: str | None,
+        last_name: str | None,
+        email: str | None,
+        skip: int,
+        limit: int,
         current_user: User,
-        first_name: str | None = None,
-        last_name: str | None = None,
-        email: str | None = None,
-        skip: int = 0,
-        limit: int = 10,
     ):
+
         contacts = await self.repository.get_contacts(
-            first_name, last_name, email, skip, limit, current_user.id
+            current_user.id, first_name, last_name, email, skip, limit
         )
         if len(contacts) == 0:
             return []

@@ -24,8 +24,9 @@ class UserRepository:
         await self.db.execute(stmt)
         await self.db.flush()
 
-    async def update_user_avatar(self, email: str, avatar_url: str) -> User:
-        stmt = update(User).where(User.email == email).values(avatar_url=avatar_url).returning(User)
-        result = await self.db.execute(stmt)
-        await self.db.flush()
-        return result.scalar_one()
+    async def update_avatar_url(self, email: str, url: str) -> User:
+        user = await self.get_user_by_email(email)
+        user.avatar = url
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user
