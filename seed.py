@@ -1,7 +1,7 @@
 import asyncio
 from datetime import date
-from app.db_connection import session_manager
-from app.models import Contact
+from app.db.db_connection import session_manager
+from app.db.models import Contact
 
 
 contacts_data = [

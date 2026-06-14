@@ -1,5 +1,5 @@
-from app.repository import ContactRepository
-from app.schemas import ContactModel
+from app.repository.contacts import ContactRepository
+from app.schemas.contacts import ContactModel
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -53,6 +53,6 @@ class ContactService:
         if contact is None:
             raise HTTPException(status_code=404, detail="Contact not found")
         return contact
-    
+
     async def get_b_days(self):
         return await self.repository.get_birthdays()

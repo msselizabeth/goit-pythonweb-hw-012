@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException, RequestValidationError
-from app.db_connection import session_manager
+from app.db.db_connection import session_manager
 from app.api.contacts import router as contacts_router
 
 

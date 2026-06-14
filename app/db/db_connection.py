@@ -2,10 +2,11 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from contextlib import asynccontextmanager
+from app.config import settings
 
 
 # Setup database connection securely
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = settings.DATABASE_URL
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is not set!")
 
