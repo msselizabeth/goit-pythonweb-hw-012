@@ -9,6 +9,8 @@ from app.config import settings
 from app.db.db_connection import get_db
 from app.db.models import User
 from app.repository.users import UserRepository
+from app.services.cache import get_redis_client
+import json
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -22,9 +24,7 @@ class Hash:
     def get_password_hash(self, password: str):
         return self.pwd_context.hash(password)
 
-
 hash_helper = Hash()
-
 
 def create_access_token(data: dict, expires_delta: Optional[float] = None):
     to_encode = data.copy()
@@ -36,10 +36,8 @@ def create_access_token(data: dict, expires_delta: Optional[float] = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
-
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), 
-    db: AsyncSession = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -50,9 +48,7 @@ async def get_current_user(
     try:
         # Decode the incoming JWT token
         payload = jwt.decode(
-            token, 
-            settings.JWT_SECRET, 
-            algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
         email: str = payload.get("sub")
         if email is None:
@@ -60,10 +56,29 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    repository = UserRepository(db)
-    user = await repository.get_user_by_email(email)
-    
-    if user is None:
-        raise credentials_exception
-        
-    return user
+    redis = await get_redis_client()
+    cache = await redis.get(f"user:{email}")
+    if cache:
+        return json.loads(cache)
+    else:
+        repository = UserRepository(db)
+        print("DB hit  checking cache")
+        user = await repository.get_user_by_email(email)
+        if user is None:
+            raise credentials_exception
+
+        await redis.set(
+            f"user:{email}",
+            json.dumps(
+                {
+                    "id": user.id,
+                    "email": user.email,
+                    "is_verified": user.is_verified,
+                    "avatar_url": user.avatar_url,
+                }
+            ),
+            ex=900
+            
+        )
+        # add "role": user.role later, sill need to add it to the model
+        return user
