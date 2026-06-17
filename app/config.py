@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     CLOUDINARY_NAME: str
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
+
+    # Redis
+    REDIS_HOST: str
+    REDIS_PORT: str = 6379
     
     model_config = SettingsConfigDict(
         env_file=".env", 

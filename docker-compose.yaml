@@ -34,7 +34,7 @@ services:
 
   app:
     build: .
-    container_name: python_web_hw_8_app
+    container_name: python_web_final_proj
     restart: unless-stopped
     depends_on:
       - db

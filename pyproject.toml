@@ -21,6 +21,7 @@ fastapi-mail = "^1.6.4"
 cloudinary = "^1.44.2"
 slowapi = "^0.1.10"
 python-multipart = "^0.0.32"
+redis = "^8.0.0"
 
 
 [build-system]
