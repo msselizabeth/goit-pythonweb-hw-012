@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: postgres_python_web_hw_6
+    container_name: postgres_python_web_final_proj
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -12,9 +12,10 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+
   db_admin:
     image: dpage/pgadmin4
-    container_name: postgres_admin_hw_8
+    container_name: postgres_admin_python_web_final_proj
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -22,12 +23,22 @@ services:
     ports:
       - "5050:80"
 
+  redis-cache:
+    image: redis:7.2-alpine
+    container_name: redis_python_web_final_proj
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   app:
     build: .
     container_name: python_web_hw_8_app
     restart: unless-stopped
     depends_on:
       - db
+      - redis-cache
     environment:
       - DATABASE_URL=${DATABASE_URL}
     ports:
@@ -38,3 +49,4 @@ services:
 
 volumes:
   pgdata:
+  redis_data:
