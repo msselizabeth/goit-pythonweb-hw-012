@@ -47,7 +47,7 @@ async def login_user(
     if not user.is_verified:
         raise HTTPException(status_code=403, detail="Email is not verified.")
         
-    token = create_access_token(data={"sub": user.email})
+    token = create_access_token(data={"sub": user.email}, expires_delta=86400)
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/verify/{token}")
