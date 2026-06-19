@@ -62,6 +62,10 @@ test_password = "password123"
 
 ### 5. Open API docs
 
+```
+open docs/build/index.html
+```
+
 http://localhost:8001/docs
 
 ## API Endpoints
