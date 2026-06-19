@@ -32,3 +32,10 @@ class UserResponse(BaseModel):
     is_verified: bool
     role: str
     model_config = ConfigDict(from_attributes=True)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    new_password: str
