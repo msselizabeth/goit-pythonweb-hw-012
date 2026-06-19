@@ -32,3 +32,19 @@ async def send_verification_email(email: EmailStr, host: str, token: str):
     
     fm = FastMail(conf)
     await fm.send_message(message)
+
+async def send_password_reset_email(email: EmailStr, host: str, token: str):
+    reset_link = f"{host}auth/reset-password/{token}"
+    html_content = f"""
+    <p>Please reset your password by clicking the link below:</p>
+    <a href="{reset_link}">Reset Password</a>
+    """
+    message = MessageSchema(
+        subject="reset you password",
+        recipients=[email],
+        body=html_content,
+        subtype=MessageType.html
+    )
+    
+    fm = FastMail(conf)
+    await fm.send_message(message)

@@ -39,4 +39,5 @@ class UserService:
             raise HTTPException(status_code=500, detail="Database error")
     
     async def update_avatar_url(self, email: str, url: str):
-        return await self.repository.update_avatar_url(email, url)   
+        return await self.repository.update_avatar_url(email, url)
+
