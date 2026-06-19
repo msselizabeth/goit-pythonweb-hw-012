@@ -29,6 +29,14 @@ async def signup_user(
     user_data: UserCreate, 
     service: UserService = Depends(get_service)
 ):
+    """
+    Register a new user and send an email verification link.
+
+    :param request: Incoming HTTP request, used to build the verification link.
+    :param user_data: New user's registration data.
+    :param service: User service for registration logic.
+    :return: The newly created user.
+    """
     new_user = await service.register_user(user_data)
     
     token = create_access_token(data={"sub": new_user.email})
@@ -43,6 +51,14 @@ async def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(), 
     service: UserService = Depends(get_service)
 ):
+    """
+    Authenticate a user and issue a JWT access token.
+
+    :param form_data: Login credentials (username is the email, password).
+    :param service: User service for authentication logic.
+    :return: An access token and its type.
+    :raises HTTPException: If the email is not verified.
+    """
     user = await service.auth_user(form_data.username, form_data.password)
     
     if not user.is_verified:
@@ -53,6 +69,14 @@ async def login_user(
 
 @router.get("/verify/{token}")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+    """
+    Verify a user's email address using a signed token.
+
+    :param token: JWT verification token sent to the user's email.
+    :param db: Database session.
+    :return: A confirmation message.
+    :raises HTTPException: If the token is invalid/expired or the user doesn't exist.
+    """
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         email = payload.get("sub")
@@ -79,6 +103,17 @@ async def forgot_password(
     body: ForgotPasswordRequest,  
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Request a password reset link by email.
+
+    Always returns a generic success message, regardless of whether
+    the email exists, to avoid leaking which addresses are registered.
+
+    :param request: Incoming HTTP request, used to build the reset link.
+    :param body: Request body containing the user's email.
+    :param db: Database session.
+    :return: A generic confirmation message.
+    """
     repository = UserRepository(db)
     user = await repository.get_user_by_email(body.email)
 
@@ -98,6 +133,18 @@ async def reset_password(
     body: ResetPasswordRequest,  
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Reset a user's password using a signed reset token.
+
+    Also invalidates the user's Redis cache entry so the next
+    request picks up the updated password.
+
+    :param token: JWT reset token sent to the user's email.
+    :param body: Request body containing the new password.
+    :param db: Database session.
+    :return: A confirmation message.
+    :raises HTTPException: If the token is invalid/expired or the user doesn't exist.
+    """
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         email = payload.get("sub")
