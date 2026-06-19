@@ -6,6 +6,8 @@ from datetime import date, timedelta
 
 
 class ContactRepository:
+    """Provides database access for contact records, scoped to a specific user."""
+
     def __init__(self, session: AsyncSession):
         self.db = session
 
@@ -18,6 +20,17 @@ class ContactRepository:
         skip: int = 0,
         limit: int = 10,
     ):
+        """
+        Retrieve a paginated, optionally filtered list of a user's contacts.
+
+        :param user_id: ID of the contacts' owner.
+        :param first_name: Filter by exact first name match.
+        :param last_name: Filter by exact last name match.
+        :param email: Filter by exact email match.
+        :param skip: Number of records to skip (for pagination).
+        :param limit: Maximum number of records to return.
+        :return: A list of matching contacts.
+        """
         # Added user_id to the base filters list
         filters = [Contact.user_id == user_id]
 
@@ -40,12 +53,27 @@ class ContactRepository:
         return result.scalars().all()
 
     async def get_contact_by_id(self, id: int, user_id: int):
+        """
+        Find a single contact by ID, scoped to its owner.
+
+        :param id: ID of the contact to retrieve.
+        :param user_id: ID of the contact's owner.
+        :return: The matching contact, or None if not found.
+        """
         # Added Contact.user_id == user_id to the condition
         stmt = select(Contact).where(and_(Contact.id == id, Contact.user_id == user_id))
         result = await self.db.execute(stmt)
         return result.scalars().first()
 
     async def create_contact(self, body: ContactModel, user_id: int):
+        """
+        Create a new contact for a user.
+
+        :param body: Contact data to create.
+        :param user_id: ID of the user who will own the contact.
+        :return: The newly created contact.
+        """
+
         # Added user_id parameter when creating the model instance
         new_contact = Contact(**body.model_dump(), user_id=user_id)
         self.db.add(new_contact)
@@ -53,9 +81,16 @@ class ContactRepository:
         await self.db.refresh(new_contact)
         return new_contact
 
-    # Added missing closing parenthesis ")" here
     async def update_contact(self, id: int, body: ContactModel, user_id: int):
-        # Passed user_id to the get_contact_by_id call
+        """
+        Update an existing contact's fields.
+
+        :param id: ID of the contact to update.
+        :param body: Updated contact data.
+        :param user_id: ID of the contact's owner.
+        :return: The updated contact, or None if not found.
+        """
+
         contact = await self.get_contact_by_id(id, user_id)
         if contact is None:
             return None
@@ -66,7 +101,13 @@ class ContactRepository:
         return contact
 
     async def delete_contact(self, id: int, user_id: int):
-        # Passed user_id to the get_contact_by_id call
+        """
+        Delete a contact.
+
+        :param id: ID of the contact to delete.
+        :param user_id: ID of the contact's owner.
+        :return: The deleted contact, or None if not found.
+        """
         contact = await self.get_contact_by_id(id, user_id)
         if contact is None:
             return None
@@ -74,6 +115,15 @@ class ContactRepository:
         return contact
 
     async def get_birthdays(self, user_id: int):
+        """
+        Retrieve a user's contacts with birthdays in the next 7 days.
+
+        Handles the month-boundary case (e.g. late December into January)
+        by splitting the date range across two month conditions.
+
+        :param user_id: ID of the contacts' owner.
+        :return: A list of contacts with upcoming birthdays.
+        """
         today = date.today()
         end_date = today + timedelta(days=7)
         if today.month == end_date.month:
