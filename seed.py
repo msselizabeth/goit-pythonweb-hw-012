@@ -142,7 +142,8 @@ async def seed():
         test_user = User(
             email=test_email, 
             password=hashed_password, 
-            is_verified=True
+            is_verified=True,
+            role="admin"
         )
         session.add(test_user)
         
